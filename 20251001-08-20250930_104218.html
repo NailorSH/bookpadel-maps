@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Карта доступных филиалов</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+          crossorigin=""/>
+    <style>
+        body { 
+            margin: 0; 
+            padding: 20px; 
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 24px;
+        }
+        .search-info {
+            color: #666;
+            font-size: 16px;
+        }
+        #map { 
+            height: 500px; 
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .leaflet-popup-content {
+            font-family: Arial, sans-serif;
+        }
+        .popup-title {
+            font-weight: bold;
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .popup-address {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .popup-button {
+            background: #2196F3;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .popup-button:hover {
+            background: #1976D2;
+        }
+        .error-message {
+            text-align: center;
+            padding: 20px;
+            background: #ffebee;
+            border: 1px solid #f44336;
+            border-radius: 4px;
+            color: #c62828;
+            margin-top: 20px;
+        }
+        .leaflet-attribution-flag {
+            display: none !important;
+        }
+        .popup-button,
+        .popup-button:visited,
+        .popup-button:hover,
+        .popup-button:active {
+            color: #fff !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🗺️ Доступные филиалы падел</h1>
+        <div class="search-info">
+            📅 Дата: 01.10.2025 | 🕐 Время: 08:00
+        </div>
+    </div>
+    
+    <div id="map"></div>
+    <div id="error" class="error-message" style="display: none;">
+        ❌ Ошибка загрузки карты. Проверьте подключение к интернету.
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+    <script>
+        try {
+            // Проверяем доступность Leaflet
+            if (typeof L === 'undefined') {
+                throw new Error('Leaflet library not loaded');
+            }
+
+            // Инициализация карты
+            var map = L.map('map').setView([55.72907065384615, 37.54583146153847], 11);
+
+            // Добавляем тайлы OpenStreetMap с fallback
+            var tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            });
+            
+            tileLayer.on('tileerror', function(e) {
+                console.warn('Tile loading error:', e);
+            });
+            
+            tileLayer.addTo(map);
+
+            // Иконка для маркеров
+            var paddelIcon = L.divIcon({
+                className: 'custom-div-icon',
+                html: '<div style="background-color: #2196F3; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"><span style="color: white; font-size: 16px;">🏓</span></div>',
+                iconSize: [30, 30],
+                iconAnchor: [15, 15]
+            });
+
+            // Добавляем маркеры
+            var markers = [{"lat": 55.712837, "lng": 37.564221, "title": "Moscow PDL - Лужники", "address": "ул Лужники, д 24 стр 21", "city": "Москва", "branch_id": 11, "deeplink": "tg://resolve?domain=book_padel_bot&start=branch_11_2025-10-01_08-00"}, {"lat": 55.774148, "lng": 37.036488, "title": "Jet Benelux - Аллея Художников", "address": "МО, муниципальный округ Истра, деревня Чесноково, аллея Художников, 103", "city": "Москва", "branch_id": 13, "deeplink": "tg://resolve?domain=book_padel_bot&start=branch_13_2025-10-01_08-00"}, {"lat": 55.744668, "lng": 37.234172, "title": "Padel Club Zhukovka - Жуковка", "address": "МО, Одинцовский городской округ, деревня Жуковка, ул. Ильинский Подъезд, с1", "city": "Москва", "branch_id": 14, "deeplink": "tg://resolve?domain=book_padel_bot&start=branch_14_2025-10-01_08-00"}, {"lat": 55.944994, "lng": 37.22694, "title": "Padel Battle - Луговая", "address": "МО, городской округ Химки, квартал дачной застройки Середниково Парк, Луговая улица, 300", "city": "Москва", "branch_id": 15, "deeplink": "tg://resolve?domain=book_padel_bot&start=branch_15_2025-10-01_08-00"}, {"lat": 55.80442, "lng": 37.647334, "title": "Корты-Сетки - Мытищи", "address": "3-я Мытищинская улица, 16с3", "city": "Москва", "branch_id": 20, "deeplink": "tg://resolve?domain=book_padel_bot&start=branch_20_2025-10-01_08-00"}, {"lat": 55.738015, "lng": 37.309501, "title": "Cool Tennis - Парк Малевича", "address": "МО, Одинцовский городской округ, парк Малевича", "city": "Москва", "branch_id": 21, "deeplink": "tg://resolve?domain=book_padel_bot&start=branch_21_2025-10-01_08-00"}, {"lat": 55.712573, "lng": 37.563924, "title": "Дворец тенниса Лужники - Лужники", "address": "ул. Лужники, 24, стр. 21", "city": "Москва", "branch_id": 22, "deeplink": "tg://resolve?domain=book_padel_bot&start=branch_22_2025-10-01_08-00"}, {"lat": 55.828172, "lng": 37.482053, "title": "Tennis Capital - Войковская", "address": "Ленинградское шоссе, 25Ас2", "city": "Москва", "branch_id": 23, "deeplink": "tg://resolve?domain=book_padel_bot&start=branch_23_2025-10-01_08-00"}, {"lat": 55.654243, "lng": 37.643276, "title": "ProTennis - Каширская", "address": "Каширское ш., 24, стр. 1", "city": "Москва", "branch_id": 27, "deeplink": "tg://resolve?domain=book_padel_bot&start=branch_27_2025-10-01_08-00"}, {"lat": 55.563813, "lng": 37.688711, "title": "I Love Tennis - Видное", "address": "Видное, Старо-Нагорная ул., 20А", "city": "Москва", "branch_id": 28, "deeplink": "tg://resolve?domain=book_padel_bot&start=branch_28_2025-10-01_08-00"}, {"lat": 55.676722, "lng": 37.695373, "title": "Коломенский - Кленовый бульвар", "address": "Коломенская наб., 20, стр. 1", "city": "Москва", "branch_id": 31, "deeplink": "tg://resolve?domain=book_padel_bot&start=branch_31_2025-10-01_08-00"}, {"lat": 55.608421, "lng": 37.651747, "title": "WeGym - Царицыно", "address": "6-я Радиальная ул., 34", "city": "Москва", "branch_id": 32, "deeplink": "tg://resolve?domain=book_padel_bot&start=branch_32_2025-10-01_08-00"}, {"lat": 55.9296, "lng": 37.778271, "title": "WeGym - Мытищи", "address": "Мытищи, Силикатная ул., 20Б", "city": "Москва", "branch_id": 33, "deeplink": "tg://resolve?domain=book_padel_bot&start=branch_33_2025-10-01_08-00"}, {"lat": 55.711657, "lng": 37.498112, "title": "Олимп Арена - Минская", "address": "Минская ул., 1Г", "city": "Москва", "branch_id": 36, "deeplink": "tg://resolve?domain=book_padel_bot&start=branch_36_2025-10-01_08-00"}, {"lat": 55.748027, "lng": 37.778642, "title": "Кампус - Перово", "address": "Зелёный просп., 10Б", "city": "Москва", "branch_id": 37, "deeplink": "tg://resolve?domain=book_padel_bot&start=branch_37_2025-10-01_08-00"}, {"lat": 55.569989, "lng": 37.479198, "title": "Arena Play - Коммунарка", "address": "посёлок Коммунарка, 11А", "city": "Москва", "branch_id": 39, "deeplink": "tg://resolve?domain=book_padel_bot&start=branch_39_2025-10-01_08-00"}, {"lat": 55.549389, "lng": 37.85804, "title": "Орловский - Дальние Прудищи", "address": "д. Дальние Прудищи, Орловский пр., 12", "city": "Москва", "branch_id": 40, "deeplink": "tg://resolve?domain=book_padel_bot&start=branch_40_2025-10-01_08-00"}, {"lat": 55.707284, "lng": 37.740219, "title": "Академия индустрии спорта - Текстильщики", "address": "Волгоградский просп., 46/15с12", "city": "Москва", "branch_id": 42, "deeplink": "tg://resolve?domain=book_padel_bot&start=branch_42_2025-10-01_08-00"}, {"lat": 55.853921, "lng": 37.497499, "title": "Активити Холл - Речной вокзал", "address": "Флотская ул., 7, стр. 1", "city": "Москва", "branch_id": 44, "deeplink": "tg://resolve?domain=book_padel_bot&start=branch_44_2025-10-01_08-00"}, {"lat": 55.677105, "lng": 37.617709, "title": "Высшая Лига - Нагорная", "address": "Электролитный пр., 3, стр. 5", "city": "Москва", "branch_id": 45, "deeplink": "tg://resolve?domain=book_padel_bot&start=branch_45_2025-10-01_08-00"}, {"lat": 55.640806, "lng": 37.401969, "title": "СК Игра - Солнцево", "address": "ул. Авиаторов, 7Б", "city": "Москва", "branch_id": 46, "deeplink": "tg://resolve?domain=book_padel_bot&start=branch_46_2025-10-01_08-00"}, {"lat": 55.880621, "lng": 37.665426, "title": "СК Чемпион - Медведково", "address": "Олонецкий пр., 5/1А", "city": "Москва", "branch_id": 47, "deeplink": "tg://resolve?domain=book_padel_bot&start=branch_47_2025-10-01_08-00"}, {"lat": 55.871585, "lng": 37.690184, "title": "Tennis77 - Бабушкинская", "address": "ул. Коминтерна, 15", "city": "Москва", "branch_id": 50, "deeplink": "tg://resolve?domain=book_padel_bot&start=branch_50_2025-10-01_08-00"}, {"lat": 55.778155, "lng": 37.406964, "title": "Серебряный бор - Пляж №3", "address": "Москва, Серебряный бор, пляж №3", "city": "Москва", "branch_id": 53, "deeplink": "tg://resolve?domain=book_padel_bot&start=branch_53_2025-10-01_08-00"}, {"lat": 55.569759, "lng": 37.479555, "title": "Cool Tennis - Коммунарка", "address": "Новомосковский административный округ, район Коммунарка, квартал № 152", "city": "Москва", "branch_id": 55, "deeplink": "tg://resolve?domain=book_padel_bot&start=branch_55_2025-10-01_08-00"}, {"lat": 55.704913, "lng": 37.55609, "title": "Cool Tennis - Косыгина", "address": "Москва, ул. Косыгина", "city": "Москва", "branch_id": 56, "deeplink": "tg://resolve?domain=book_padel_bot&start=branch_56_2025-10-01_08-00"}];
+            
+            if (!Array.isArray(markers) || markers.length === 0) {
+                throw new Error('No markers data available');
+            }
+            
+            var searchDate = '2025-10-01';
+            var searchTime = '08:00';
+            
+            markers.forEach(function(markerData) {
+                var popup = '<div class="popup-title">' + markerData.title + '</div>' +
+                           '<div class="popup-address">📍 ' + markerData.address + '</div>';
+                
+                // Добавляем кнопку только если есть bot_username
+                if ('book_padel_bot') {
+                    popup += '<a href="' + markerData.deeplink + '" class="popup-button">Посмотреть слоты</a>';
+                } else {
+                    popup += '<div style="color: #666; font-size: 12px; margin-top: 5px;">Вернитесь в Telegram для просмотра слотов</div>';
+                }
+                
+                L.marker([markerData.lat, markerData.lng], {icon: paddelIcon})
+                    .addTo(map)
+                    .bindPopup(popup);
+            });
+
+            // Подгоняем карту под все маркеры если их больше одного
+            if (markers.length > 1) {
+                var group = new L.featureGroup(Object.values(map._layers).filter(function(layer) {
+                    return layer instanceof L.Marker;
+                }));
+                if (group.getLayers().length > 0) {
+                    map.fitBounds(group.getBounds().pad(0.1));
+                }
+            }
+            
+            // Скрываем сообщение об ошибке если все загрузилось
+            document.getElementById('error').style.display = 'none';
+            
+        } catch (error) {
+            console.error('Map initialization error:', error);
+            document.getElementById('map').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('error').innerHTML = '❌ Ошибка загрузки карты: ' + error.message;
+        }
+    </script>
+</body>
+</html>
